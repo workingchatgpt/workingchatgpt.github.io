@@ -1,18 +1,222 @@
 
-
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
+
 <head>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4038696473489516" crossorigin="anonymous"></script>
-<meta name="google-adsense-account" content="ca-pub-4038696473489516">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Book Search App</title>
-<!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-<title>일하는 챗 gpt</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4038696473489516"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-4038696473489516">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Search App</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #searchInput {
+            width: 300px;
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        #searchButton {
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #results {
+            margin-top: 20px;
+        }
+
+        .book {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .book img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .tile-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .tile {
+            width: calc(33.33% - 20px);
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .tile img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+    </style>
 </head>
+
 <body>
-<h1>일하는 챗 gpt</h1>
+    <div class="container">
+        <h1 class="mt-4 mb-4">Book Search App</h1>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="searchInput" placeholder="검색어를 입력하세요">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" id="searchButton" onclick="searchBooks()">검색</button>
+            </div>
+        </div>
+        <div id="results" class="tile-container"></div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script>
+        // Your existing JavaScript code for book search
+        function searchBooks() {
+            var searchInput = document.getElementById('searchInput').value;
+            var apiUrl = 'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(searchInput);
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => displayResults(data.items))
+                .catch(error => console.error('Error:', error));
+        }
+
+        function displayResults(books) {
+            var resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+
+            books.forEach(book => {
+                var title = book.volumeInfo.title;
+                var authors = book.volumeInfo.authors ? book.volumeInfo.authors.join(', ') : 'Unknown Author';
+                var thumbnail = book.volumeInfo.imageLinks ? book.volumeInfo.imageLinks.thumbnail : null;
+                var description = book.volumeInfo.description ? book.volumeInfo.description : 'No Description';
+
+                var tileDiv = document.createElement('div');
+                tileDiv.className = 'tile';
+
+                if (thumbnail) {
+                    var thumbnailImg = document.createElement('img');
+                    thumbnailImg.src = thumbnail;
+                    thumbnailImg.alt = title;
+                    thumbnailImg.className = 'img-fluid';
+                    tileDiv.appendChild(thumbnailImg);
+                }
+
+                var titleParagraph = document.createElement('p');
+                titleParagraph.innerText = 'Title: ' + title;
+
+                var authorsParagraph = document.createElement('p');
+                authorsParagraph.innerText = 'Authors: ' + authors;
+
+                tileDiv.appendChild(titleParagraph);
+                tileDiv.appendChild(authorsParagraph);
+
+                tileDiv.onclick = function () {
+                    showBookDetails(title, authors, thumbnail, description);
+                };
+
+                resultsContainer.appendChild(tileDiv);
+            });
+        }
+
+        function showBookDetails(title, authors, thumbnail, description) {
+            // Create a modal
+            var modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'bookModal';
+            modal.tabIndex = '-1';
+            modal.role = 'dialog';
+            modal.setAttribute('aria-labelledby', 'bookModalLabel');
+            modal.setAttribute('aria-hidden', 'true');
+
+            var modalDialog = document.createElement('div');
+            modalDialog.className = 'modal-dialog';
+            modalDialog.role = 'document';
+
+            var modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            // Modal Header
+            var modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+            modalHeader.innerHTML = '<h5 class="modal-title" id="bookModalLabel">Book Details</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+
+            // Modal Body
+            var modalBody = document.createElement('div');
+            modalBody.className = 'modal-body';
+
+            if (thumbnail) {
+                var modalImg = document.createElement('img');
+                modalImg.src = thumbnail;
+                modalImg.alt = title;
+                modalImg.className = 'img-fluid';
+                modalBody.appendChild(modalImg);
+            }
+
+            var titleParagraph = document.createElement('p');
+            titleParagraph.innerText = 'Title: ' + title;
+
+            var authorsParagraph = document.createElement('p');
+            authorsParagraph.innerText = 'Authors: ' + authors;
+
+            var descriptionParagraph = document.createElement('p');
+            descriptionParagraph.innerText = 'Description: ' + description;
+
+            modalBody.appendChild(titleParagraph);
+            modalBody.appendChild(authorsParagraph);
+            modalBody.appendChild(descriptionParagraph);
+
+            // Add Buy Button and link to Coupang
+            var buyButton = document.createElement('a');
+            buyButton.href = 'https://www.coupang.com/np/search?q=' + encodeURIComponent(title);
+            buyButton.target = '_blank';
+            buyButton.className = 'btn btn-primary';
+            buyButton.innerText = '구매하기';
+
+            modalBody.appendChild(buyButton);
+
+            // Assemble the modal
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(modalBody);
+            modalDialog.appendChild(modalContent);
+            modal.appendChild(modalDialog);
+
+            // Add the modal to the body
+            document.body.appendChild(modal);
+
+            // Show the modal
+            $('#bookModal').modal('show');
+
+            // Remove the modal from the DOM after it's hidden
+            $('#bookModal').on('hidden.bs.modal', function (e) {
+                document.body.removeChild(modal);
+            });
+        }
+
+        // Auto-search when the page is loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set the default search term to "고양이"
+            document.getElementById('searchInput').value = '고양이';
+
+            // Trigger the searchBooks function
+            searchBooks();
+        });
+    </script>
 </body>
+
 </html>
